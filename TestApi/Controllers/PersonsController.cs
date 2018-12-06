@@ -1,5 +1,6 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using TestApi.Dto;
 using TestApi.Models;
 
 namespace TestApi.Controllers {
@@ -14,7 +15,18 @@ namespace TestApi.Controllers {
         [HttpGet]
         public IActionResult GetAllData () {
             try {
-                var items = _dataContext.Persons.ToList ();
+                var items = _dataContext.Persons.Select(x=>new PersonReturnDto{
+                    Id= x.Id,
+                    Name = x.Name,
+                    Dob = x.Dob,
+                    MobileNo = x.MobileNo,
+                    DivisionName = x.Division.Name,
+                    DistrictName = x.District.Name,
+                    UpazillaName = x.Upazilla.Name,
+                    VillageName = x.VillageName,
+                    CreatedAt = x.CreatedAt
+
+                }).ToList ();
                 return Ok (items); //200
             } catch (System.Exception) {
                 return BadRequest (); //400

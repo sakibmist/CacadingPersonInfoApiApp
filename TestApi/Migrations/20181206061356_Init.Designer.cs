@@ -10,7 +10,7 @@ using TestApi.Models;
 namespace TestApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20181205123034_Init")]
+    [Migration("20181206061356_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,11 +29,15 @@ namespace TestApi.Migrations
 
                     b.Property<DateTime>("CreatedAt");
 
+                    b.Property<int>("DivisionId");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DivisionId");
 
                     b.ToTable("Districts");
                 });
@@ -102,13 +106,29 @@ namespace TestApi.Migrations
 
                     b.Property<DateTime>("CreatedAt");
 
+                    b.Property<int>("DistrictId");
+
+                    b.Property<int>("DivisionId");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50);
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DistrictId");
+
+                    b.HasIndex("DivisionId");
+
                     b.ToTable("Upazillas");
+                });
+
+            modelBuilder.Entity("TestApi.Models.District", b =>
+                {
+                    b.HasOne("TestApi.Models.Division", "Division")
+                        .WithMany()
+                        .HasForeignKey("DivisionId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TestApi.Models.Person", b =>
@@ -126,6 +146,19 @@ namespace TestApi.Migrations
                     b.HasOne("TestApi.Models.Upazilla", "Upazilla")
                         .WithMany()
                         .HasForeignKey("UpazillaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TestApi.Models.Upazilla", b =>
+                {
+                    b.HasOne("TestApi.Models.District", "District")
+                        .WithMany()
+                        .HasForeignKey("DistrictId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TestApi.Models.Division", "Division")
+                        .WithMany()
+                        .HasForeignKey("DivisionId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

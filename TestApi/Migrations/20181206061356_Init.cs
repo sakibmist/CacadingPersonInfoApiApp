@@ -9,20 +9,6 @@ namespace TestApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Districts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(maxLength: 50, nullable: false),
-                    CreatedAt = table.Column<DateTime>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Districts", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Divisions",
                 columns: table => new
                 {
@@ -37,17 +23,52 @@ namespace TestApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Districts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(maxLength: 50, nullable: false),
+                    DivisionId = table.Column<int>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Districts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Districts_Divisions_DivisionId",
+                        column: x => x.DivisionId,
+                        principalTable: "Divisions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Upazillas",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(maxLength: 50, nullable: false),
+                    DistrictId = table.Column<int>(nullable: false),
+                    DivisionId = table.Column<int>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Upazillas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Upazillas_Districts_DistrictId",
+                        column: x => x.DistrictId,
+                        principalTable: "Districts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Upazillas_Divisions_DivisionId",
+                        column: x => x.DivisionId,
+                        principalTable: "Divisions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -73,20 +94,25 @@ namespace TestApi.Migrations
                         column: x => x.DistrictId,
                         principalTable: "Districts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Persons_Divisions_DivisionId",
                         column: x => x.DivisionId,
                         principalTable: "Divisions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Persons_Upazillas_UpazillaId",
                         column: x => x.UpazillaId,
                         principalTable: "Upazillas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Districts_DivisionId",
+                table: "Districts",
+                column: "DivisionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Persons_DistrictId",
@@ -102,6 +128,16 @@ namespace TestApi.Migrations
                 name: "IX_Persons_UpazillaId",
                 table: "Persons",
                 column: "UpazillaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Upazillas_DistrictId",
+                table: "Upazillas",
+                column: "DistrictId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Upazillas_DivisionId",
+                table: "Upazillas",
+                column: "DivisionId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -110,13 +146,13 @@ namespace TestApi.Migrations
                 name: "Persons");
 
             migrationBuilder.DropTable(
+                name: "Upazillas");
+
+            migrationBuilder.DropTable(
                 name: "Districts");
 
             migrationBuilder.DropTable(
                 name: "Divisions");
-
-            migrationBuilder.DropTable(
-                name: "Upazillas");
         }
     }
 }

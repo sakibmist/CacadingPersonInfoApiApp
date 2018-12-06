@@ -1,5 +1,6 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using TestApi.Dto;
 using TestApi.Models;
 
 namespace TestApi.Controllers {
@@ -21,7 +22,7 @@ namespace TestApi.Controllers {
             }
         }
 
-        [HttpGet ("{id}", Name = "GetData")]
+        [HttpGet ("{id}", Name = "GetUpazilla")]
         public IActionResult GetDataById (int id) {
             try {
                 var data = _dataContext.Upazillas.FirstOrDefault (x => x.Id == id);
@@ -32,13 +33,30 @@ namespace TestApi.Controllers {
             }
         }
 
+
+//takes district data by divisionId
+         [HttpGet ("id/{districtId}")]
+        public IActionResult GetDataByDistrictId (int districtId) {
+            try {
+                var upazillas = _dataContext.Upazillas
+                .Where(x=>x.DistrictId == districtId)
+                .Select(x=>new DistrictDto{
+                    Name = x.Name,
+                    Id =x.Id
+                }).ToList();
+                return Ok (upazillas); //200 
+            } catch (System.Exception) {
+
+                return BadRequest (); //400
+            }
+        }
         [HttpPost]
         public IActionResult AddData (Upazilla upazilla) {
             try {
                 if (upazilla == null) return NotFound (); //404
                 _dataContext.Add (upazilla);
                 _dataContext.SaveChanges ();
-                return CreatedAtRoute ("GetData", new { id = upazilla.Id }, upazilla); //201
+                return CreatedAtRoute ("GetUpazilla", new { id = upazilla.Id }, upazilla); //201
             } catch (System.Exception) {
                 return BadRequest ();
             }

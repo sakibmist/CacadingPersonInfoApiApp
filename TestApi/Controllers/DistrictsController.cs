@@ -1,9 +1,10 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using TestApi.Dto;
 using TestApi.Models;
 
 namespace TestApi.Controllers {
-    [Route ("Api/districts")]
+    [Route ("api/districts")]
     [ApiController]
     public class DistrictsController : ControllerBase {
         private readonly DataContext _dataContext;
@@ -21,11 +22,29 @@ namespace TestApi.Controllers {
             }
         }
 
-        [HttpGet ("{id}", Name = "GetData")]
+
+        [HttpGet ("{id}", Name = "GetDistrict")]
         public IActionResult GetDataById (int id) {
             try {
                 var data = _dataContext.Districts.FirstOrDefault (x => x.Id == id);
                 return Ok (data); //200
+            } catch (System.Exception) {
+
+                return BadRequest (); //400
+            }
+        } 
+
+ //takes district data by divisionId
+         [HttpGet ("id/{divisionId}")]
+        public IActionResult GetDataByDivisionId (int divisionId) {
+            try {
+                var districts = _dataContext.Districts
+                .Where(x=>x.DivisionId == divisionId)
+                .Select(x=>new DistrictDto{
+                    Name = x.Name,
+                    Id =x.Id
+                }).ToList();
+                return Ok (districts); //200 
             } catch (System.Exception) {
 
                 return BadRequest (); //400
@@ -38,7 +57,7 @@ namespace TestApi.Controllers {
                 if (district == null) return NotFound (); //404
                 _dataContext.Add (district);
                 _dataContext.SaveChanges ();
-                return CreatedAtRoute ("GetData", new { id = district.Id }, district); //201
+                return CreatedAtRoute ("GetDistrict", new { id = district.Id }, district); //201
             } catch (System.Exception) {
                 return BadRequest ();
             }
